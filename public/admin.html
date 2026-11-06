@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FrostBite Admin</title>
+<style>
+:root{--p:#e8451e;--bg:#f4f5f7;--card:#fff;--tx:#1f2430;--mu:#6b7280;--bd:#e5e7eb;--ok:#16a34a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:14px/1.5 system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--tx)}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--p);color:#fff;border:0;padding:.5rem 1rem;border-radius:8px;font-weight:600}
+.btn.g{background:#fff;color:var(--tx);border:1px solid var(--bd)}.btn.d{background:#fff;color:#dc2626;border:1px solid #fecaca}.btn.s{padding:.25rem .6rem;font-size:12px}
+input,select,textarea{font:inherit;padding:.45rem .6rem;border:1px solid var(--bd);border-radius:8px;width:100%;background:#fff;color:var(--tx)}
+textarea{resize:vertical}
+.pwm{-webkit-text-security:disc;text-security:disc}.pwm.show{-webkit-text-security:none}
+label{display:block;font-size:12px;font-weight:600;color:var(--mu);margin:.7rem 0 .2rem}
+#login{max-width:340px;margin:15vh auto;background:var(--card);padding:2rem;border-radius:16px;box-shadow:0 10px 40px #0001;text-align:center}
+#login h2{margin-bottom:1rem}#login button{width:100%;margin-top:.8rem}
+#app{display:none}
+.top{background:#1f2430;color:#fff;display:flex;align-items:center;gap:1rem;padding:.7rem 1.2rem;position:sticky;top:0;z-index:5;flex-wrap:wrap}
+.top b{font-size:1.1rem}.top a{color:#fbbf24;text-decoration:none;margin-left:auto}
+.tabs{display:flex;gap:.2rem;flex-wrap:wrap}
+.tabs button{background:none;border:0;color:#cbd5e1;padding:.45rem .8rem;border-radius:8px}
+.tabs button.on{background:var(--p);color:#fff}
+main{max-width:1100px;margin:1.2rem auto;padding:0 1rem}
+.card{background:var(--card);border-radius:14px;padding:1.1rem;box-shadow:0 1px 4px #0001;margin-bottom:1rem}
+.card h3{margin-bottom:.6rem}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8rem;margin-bottom:1rem}
+.kpi{background:var(--card);border-radius:14px;padding:1rem;box-shadow:0 1px 4px #0001}.kpi small{color:var(--mu)}.kpi b{display:block;font-size:1.8rem}
+.bar{display:flex;align-items:center;gap:.6rem;margin:.4rem 0}.bar span:first-child{width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar i{display:block;height:14px;background:var(--p);border-radius:7px;min-width:3px}.bar .t{flex:1;background:#f3f4f6;border-radius:7px}
+.days{display:flex;align-items:flex-end;gap:4px;height:140px;margin-top:.5rem}
+.days div{flex:1;background:var(--p);border-radius:4px 4px 0 0;min-height:2px;position:relative;opacity:.85}.days div:hover{opacity:1}
+.days div::after{content:attr(data-t);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#000;color:#fff;padding:2px 6px;border-radius:4px;font-size:11px;white-space:nowrap;display:none}.days div:hover::after{display:block}
+.row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}.row>*{flex:0 0 auto}.grow{flex:1!important;min-width:140px}
+.sec{border:1px solid var(--bd);border-radius:12px;margin-bottom:.6rem;background:#fff}
+.sec.drag{opacity:.4}.sec.over{border-color:var(--p);box-shadow:0 0 0 2px #e8451e33}
+.sh{display:flex;align-items:center;gap:.5rem;padding:.6rem .8rem;cursor:pointer}
+.sh .hd{cursor:grab;color:var(--mu);font-size:18px}.sh .ty{background:#f3f4f6;border-radius:6px;padding:1px 8px;font-size:11px;color:var(--mu)}
+.sb{display:none;padding:0 1rem 1rem;border-top:1px solid var(--bd)}.sec.open .sb{display:block}
+.pill{display:inline-block;padding:1px 9px;border-radius:99px;font-size:11px;font-weight:700}
+.pill.ok{background:#dcfce7;color:#166534}.pill.no{background:#fee2e2;color:#991b1b}.pill.w{background:#fef3c7;color:#92400e}
+.drop{border:2px dashed var(--bd);border-radius:10px;padding:.8rem;text-align:center;color:var(--mu);cursor:pointer;margin-top:.2rem}.drop.hot{border-color:var(--p);background:#fff5f2}
+.thumbs{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.4rem}.thumbs div{position:relative}.thumbs img{width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--bd)}
+.thumbs button{position:absolute;top:-6px;right:-6px;background:#dc2626;color:#fff;border:0;border-radius:50%;width:20px;height:20px;line-height:1}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--bd);vertical-align:top}th{font-size:12px;color:var(--mu)}
+td input,td select{min-width:70px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem}@media(max-width:700px){.two{grid-template-columns:1fr}}
+#toast{position:fixed;bottom:20px;right:20px;background:#111;color:#fff;padding:.7rem 1.1rem;border-radius:10px;opacity:0;transition:.3s;pointer-events:none;z-index:99}#toast.on{opacity:1}
+.prev{padding:1rem;border-radius:10px;margin-top:.8rem}
+</style>
+</head>
+<body>
+<div id="login"><h2 id="ltitle">🔒 Admin login</h2><input id="pw" type="text" class="pwm" placeholder="Password" autocomplete="off" autocapitalize="off" spellcheck="false" autofocus><label style="display:flex;gap:.4rem;align-items:center;font-weight:400;margin:.5rem 0 0"><input type="checkbox" id="showpw" style="width:auto"> Show password</label><button class="btn" id="lg">Sign in</button><p id="lerr" style="color:#dc2626;margin-top:.6rem"></p></div>
+<div id="app">
+  <div class="top"><b>❄️ FrostBite Admin</b><div class="tabs" id="tabs"></div><a href="/" target="_blank">View site ↗</a></div>
+  <main id="main"></main>
+</div>
+<div id="toast"></div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+let T = sessionStorage.fbTok || '', D = null, tab = 'analytics', adays = 14;
+const uid = () => Math.random().toString(36).slice(2, 8);
+
+async function api(url, method = 'GET', body) {
+  const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'x-token': T }, body: body ? JSON.stringify(body) : undefined });
+  if (r.status === 401 && url !== '/api/admin/login') { sessionStorage.removeItem('fbTok'); location.reload(); }
+  const j = await r.json(); if (!r.ok) throw new Error(j.error || 'Error'); return j;
+}
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(t.h); t.h = setTimeout(() => t.classList.remove('on'), 2500); }
+const saveKey = async k => { try { await api('/api/admin/save', 'PUT', { key: k, value: D[k] }); toast('✅ Saved'); } catch (e) { toast('❌ ' + e.message); } };
+
+/* tiny DOM helper */
+function h(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const k in attrs) { if (k.startsWith('on')) e[k] = attrs[k]; else if (k === 'class') e.className = attrs[k]; else if (attrs[k] !== undefined && attrs[k] !== false) e.setAttribute(k, attrs[k]); }
+  kids.flat().forEach(c => e.append(c?.nodeType ? c : document.createTextNode(c ?? '')));
+  return e;
+}
+const field = (label, obj, key, o = {}) => {
+  const tag = o.area ? 'textarea' : o.options ? 'select' : 'input';
+  const isPw = o.type === 'password'; if (isPw) o = { ...o, type: 'text' };
+  const i = h(tag, { class: isPw ? 'pwm' : undefined, autocomplete: isPw ? 'off' : undefined, type: o.type || 'text', rows: o.area || undefined, placeholder: o.ph || '', min: o.min, max: o.max, step: o.step });
+  if (o.options) o.options.forEach(x => i.append(h('option', { value: x }, x)));
+  i.value = obj[key] ?? '';
+  i.oninput = i.onchange = () => { obj[key] = o.type === 'number' ? (i.value === '' ? 0 : Number(i.value)) : i.value; o.cb && o.cb(); };
+  return h('div', { class: o.cls || '' }, label ? h('label', {}, label) : '', i);
+};
+async function upload(file) {
+  if (!file || !file.type.startsWith('image/')) { toast('Images only'); return null; }
+  let data = await new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(file); });
+  if (/^image\/(png|jpe?g|webp)$/.test(file.type)) { // shrink so uploads stay under Vercel's 4.5MB body limit
+    data = await new Promise(r => { const im = new Image(); im.onload = () => { const k = Math.min(1, 1600 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = im.width * k; c.height = im.height * k; c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); r(c.toDataURL(file.type === 'image/png' ? 'image/png' : 'image/jpeg', .85)); }; im.onerror = () => r(data); im.src = data; });
+  }
+  try { return (await api('/api/admin/upload', 'POST', { data })).url; } catch (e) { toast('❌ ' + e.message); return null; }
+}
+function dropzone(onFiles, multi, text) {
+  const inp = h('input', { type: 'file', accept: 'image/*', multiple: multi || undefined, style: 'display:none' });
+  const z = h('div', { class: 'drop' }, text || '📷 Drag & drop image here or click to upload', inp);
+  z.onclick = e => { if (e.target !== inp) inp.click(); };
+  inp.onchange = () => onFiles([...inp.files]);
+  z.ondragover = e => { e.preventDefault(); z.classList.add('hot'); }; z.ondragleave = () => z.classList.remove('hot');
+  z.ondrop = e => { e.preventDefault(); z.classList.remove('hot'); onFiles([...e.dataTransfer.files]); };
+  return z;
+}
+function imageField(label, obj, key) {
+  const box = h('div'), draw = () => {
+    box.innerHTML = ''; box.append(h('label', {}, label));
+    if (obj[key]) box.append(h('div', { class: 'thumbs' }, h('div', {}, h('img', { src: obj[key] }), h('button', { title: 'Remove', onclick: () => { obj[key] = ''; draw(); } }, '×'))));
+    box.append(dropzone(async fs => { const u = await upload(fs[0]); if (u) { obj[key] = u; draw(); } }));
+  }; draw(); return box;
+}
+function galleryField(obj) {
+  const box = h('div'), draw = () => {
+    box.innerHTML = ''; box.append(h('label', {}, 'Pictures (drag to add many)'));
+    box.append(h('div', { class: 'thumbs' }, (obj.images ||= []).map((u, i) => h('div', {}, h('img', { src: u }), h('button', { onclick: () => { obj.images.splice(i, 1); draw(); } }, '×')))));
+    box.append(dropzone(async fs => { for (const f of fs) { const u = await upload(f); if (u) obj.images.push(u); } draw(); }, true, '📷 Drop multiple pictures or click to upload'));
+  }; draw(); return box;
+}
+
+/* ---------- tabs ---------- */
+const TABS = { analytics: '📊 Analytics', sections: '🧱 Sections', products: '🍟 Products', orders: '📦 Orders', reviews: '⭐ Reviews', feedback: '📝 Feedback', theme: '🎨 Theme' };
+function drawTabs() {
+  $('#tabs').innerHTML = '';
+  for (const k in TABS) $('#tabs').append(h('button', { class: k === tab ? 'on' : '', onclick: () => go(k) }, TABS[k]));
+}
+async function go(k) {
+  tab = k; drawTabs();
+  if (['orders', 'reviews', 'feedback'].includes(k)) D = await api('/api/admin/data');
+  const m = $('#main'); m.innerHTML = ''; await VIEWS[k](m);
+}
+
+const VIEWS = {};
+/* ----- analytics ----- */
+VIEWS.analytics = async m => {
+  const a = await api('/api/admin/analytics?days=' + adays);
+  const max = Math.max(1, ...a.bySource.map(s => s.views)), dmax = Math.max(1, ...a.byDay.map(d => d.views));
+  m.append(
+    h('div', { class: 'row', style: 'margin-bottom:1rem' }, h('b', {}, 'Period:'), ...[7, 14, 30, 90].map(d => h('button', { class: 'btn s ' + (d === adays ? '' : 'g'), onclick: () => { adays = d; go('analytics'); } }, d + ' days')), h('button', { class: 'btn s g', onclick: () => go('analytics') }, '↻ Refresh')),
+    h('div', { class: 'kpis' },
+      ...[['Page views', a.views], ['Unique visitors', a.visitors], ['Add-to-cart', a.addToCart], ['Orders', a.orders], ['Revenue', 'Rs ' + a.revenue], ['Conversion', a.conversion + '%']].map(([l, v]) => h('div', { class: 'kpi' }, h('small', {}, l), h('b', {}, v)))),
+    h('div', { class: 'card' }, h('h3', {}, 'Where visitors come from'),
+      a.bySource.length ? a.bySource.map(s => h('div', { class: 'bar' }, h('span', {}, s.source), h('div', { class: 't' }, h('i', { style: `width:${s.views / max * 100}%` })), h('span', {}, `${s.views} views · ${s.visitors} visitors`))) : h('p', { style: 'color:var(--mu)' }, 'No visits yet. Open the site to record one.'),
+      h('p', { style: 'color:var(--mu);font-size:12px;margin-top:.8rem' }, 'Tip: share links like  /?utm_source=instagram  or  /?utm_source=whatsapp  to see each channel here. Referrers (Google, Facebook…) are detected automatically; no referrer = Direct.')),
+    h('div', { class: 'card' }, h('h3', {}, 'Views per day'), h('div', { class: 'days' }, a.byDay.map(d => h('div', { style: `height:${d.views / dmax * 100}%`, 'data-t': `${d.day}: ${d.views} views, ${d.visitors} visitors` }))))
+  );
+};
+
+/* ----- sections ----- */
+const NEWSEC = {
+  hero: { eyebrow: '', title: 'New hero', subtitle: '', ctaText: 'Shop now', image: '', emoji: '🥟' },
+  marquee: { items: 'Line one\nLine two' },
+  products: { title: 'Our Products', subtitle: '' },
+  productgroup: { title: 'Kids Deals', subtitle: '', group: 'Kids Deals' },
+  deal: { title: 'Deal of the Day', subtitle: '', discount: 15, endsAt: '', productIds: [], image: '' },
+  features: { title: 'Why choose us', items: '🧊|Title|Description' },
+  gallery: { title: 'Gallery', images: [] },
+  about: { title: 'About us', body: '', image: '' },
+  reviews: { title: 'Customer reviews', subtitle: '' },
+  feedback: { title: 'Feedback', subtitle: '' },
+  text: { title: 'New section', body: 'Write something…', image: '' }
+};
+function contentEditor(s) {
+  const c = s.content, f = [];
+  const t = (l, k, o) => f.push(field(l, c, k, o));
+  switch (s.type) {
+    case 'hero': t('Badge text', 'eyebrow'); t('Title', 'title'); t('Subtitle', 'subtitle', { area: 2 }); t('Button text', 'ctaText'); t('Emoji (if no image)', 'emoji'); f.push(imageField('Hero image', c, 'image')); break;
+    case 'marquee': t('Scrolling lines (one per line)', 'items', { area: 5 }); break;
+    case 'products': case 'reviews': case 'feedback': t('Title', 'title'); t('Subtitle', 'subtitle'); break;
+    case 'productgroup': t('Title', 'title'); t('Subtitle', 'subtitle'); t('Show products whose Category is exactly… (set the same Category on items in the Products tab; names with "kid" get the playful kids style)', 'group'); break;
+    case 'deal': {
+      t('Title', 'title'); t('Subtitle', 'subtitle'); t('Discount %', 'discount', { type: 'number', min: 0, max: 90 });
+      t('Ends at (leave empty = resets daily at midnight)', 'endsAt', { type: 'datetime-local' });
+      const box = h('div', {}, h('label', {}, 'Products in deal'));
+      D.products.forEach(p => { const cb = h('input', { type: 'checkbox', style: 'width:auto' }); cb.checked = (c.productIds ||= []).includes(p.id); cb.onchange = () => { c.productIds = c.productIds.filter(x => x !== p.id); if (cb.checked) c.productIds.push(p.id); }; box.append(h('label', { style: 'display:flex;gap:.5rem;font-weight:400;color:var(--tx)' }, cb, `${p.emoji} ${p.name} (Rs ${p.price})`)); });
+      f.push(box); break;
+    }
+    case 'features': t('Title', 'title'); t('Items: emoji|title|text, one per line', 'items', { area: 6 }); break;
+    case 'gallery': t('Title', 'title'); f.push(galleryField(c)); break;
+    default: t('Title', 'title'); t('Text', 'body', { area: 6 }); f.push(imageField('Picture', c, 'image'));
+  }
+  return f;
+}
+VIEWS.sections = async m => {
+  D = await api('/api/admin/data');
+  const open = new Set(), box = h('div'); let dragI = null;
+  const draw = () => {
+    box.innerHTML = '';
+    D.sections.forEach((s, i) => {
+      const el = h('div', { class: 'sec' + (open.has(s.id) ? ' open' : ''), draggable: 'true' });
+      el.ondragstart = e => { if (e.target.closest('.sb')) { e.preventDefault(); return; } dragI = i; el.classList.add('drag'); };
+      el.ondragend = () => { el.classList.remove('drag'); };
+      el.ondragover = e => { e.preventDefault(); el.classList.add('over'); }; el.ondragleave = () => el.classList.remove('over');
+      el.ondrop = e => { e.preventDefault(); if (dragI === null || dragI === i) return; const [x] = D.sections.splice(dragI, 1); D.sections.splice(i, 0, x); dragI = null; draw(); };
+      const vis = h('input', { type: 'checkbox', style: 'width:auto', title: 'Visible on site' }); vis.checked = s.visible; vis.onclick = e => e.stopPropagation(); vis.onchange = () => { s.visible = vis.checked; };
+      el.append(h('div', { class: 'sh', onclick: e => { if (e.target.closest('button,input')) return; open.has(s.id) ? open.delete(s.id) : open.add(s.id); draw(); } },
+        h('span', { class: 'hd', title: 'Drag to reorder' }, '⠿'), h('b', {}, s.content.title || s.type), h('span', { class: 'ty' }, s.type), h('span', { style: 'flex:1' }),
+        h('label', { style: 'margin:0;display:flex;gap:.3rem;align-items:center', onclick: e => e.stopPropagation() }, vis, 'Show'),
+        h('button', { class: 'btn g s', disabled: i === 0 || undefined, onclick: () => { [D.sections[i - 1], D.sections[i]] = [D.sections[i], D.sections[i - 1]]; draw(); } }, '↑'),
+        h('button', { class: 'btn g s', disabled: i === D.sections.length - 1 || undefined, onclick: () => { [D.sections[i + 1], D.sections[i]] = [D.sections[i], D.sections[i + 1]]; draw(); } }, '↓'),
+        h('button', { class: 'btn d s', onclick: () => { if (confirm('Remove this section?')) { D.sections.splice(i, 1); draw(); } } }, 'Remove')));
+      el.append(h('div', { class: 'sb' }, contentEditor(s)));
+      box.append(el);
+    });
+  };
+  draw();
+  const sel = h('select', { style: 'width:auto' }, Object.keys(NEWSEC).map(k => h('option', { value: k }, k)));
+  m.append(h('div', { class: 'card' }, h('div', { class: 'row' },
+    h('b', {}, 'Site sections'), h('span', { style: 'color:var(--mu)' }, 'Drag ⠿ or use arrows to change order. Click a row to edit.'), h('span', { class: 'grow' }),
+    sel, h('button', { class: 'btn g', onclick: () => { D.sections.push({ id: uid(), type: sel.value, visible: true, content: JSON.parse(JSON.stringify(NEWSEC[sel.value])) }); draw(); } }, '+ Add section'),
+    h('button', { class: 'btn', onclick: () => saveKey('sections') }, '💾 Save changes'))), box);
+};
+
+/* ----- products ----- */
+VIEWS.products = async m => {
+  D = await api('/api/admin/data');
+  const body = h('tbody'), draw = () => {
+    body.innerHTML = '';
+    D.products.forEach((p, i) => {
+      const img = h('div', {}, p.image ? h('div', { class: 'thumbs' }, h('div', {}, h('img', { src: p.image, style: 'width:48px;height:48px' }), h('button', { onclick: () => { p.image = ''; draw(); } }, '×'))) : '', dropzone(async fs => { const u = await upload(fs[0]); if (u) { p.image = u; draw(); } }, false, '📷'));
+      body.append(h('tr', {},
+        h('td', {}, field('', p, 'emoji', { ph: '🥟' })), h('td', {}, field('', p, 'name'), field('', p, 'desc', { ph: 'Description' })),
+        h('td', {}, field('', p, 'category', { ph: 'Category' })), h('td', {}, field('', p, 'price', { type: 'number', min: 0 }), field('', p, 'oldPrice', { type: 'number', min: 0, ph: 'Old price' })),
+        h('td', {}, field('', p, 'stock', { type: 'number', min: 0, cb: draw2(i) }), h('span', { class: 'pill ' + (p.stock <= 0 ? 'no' : p.stock <= 5 ? 'w' : 'ok'), id: 'st' + i }, p.stock <= 0 ? 'Out of stock' : p.stock <= 5 ? 'Low' : 'In stock'),
+          h('div', {}, h('button', { class: 'btn g s', style: 'margin-top:4px', onclick: () => { p.stock = 0; draw(); } }, 'Mark out of stock'))),
+        h('td', {}, img), h('td', {}, h('button', { class: 'btn d s', onclick: () => { if (confirm(`Delete ${p.name}?`)) { D.products.splice(i, 1); draw(); } } }, 'Delete'))));
+    });
+  };
+  const draw2 = i => () => { const p = D.products[i], e = document.getElementById('st' + i); if (e) { e.className = 'pill ' + (p.stock <= 0 ? 'no' : p.stock <= 5 ? 'w' : 'ok'); e.textContent = p.stock <= 0 ? 'Out of stock' : p.stock <= 5 ? 'Low' : 'In stock'; } };
+  draw();
+  m.append(h('div', { class: 'card' }, h('div', { class: 'row' }, h('b', {}, 'Items & stock'), h('span', { class: 'grow' }),
+    h('button', { class: 'btn g', onclick: () => { D.products.push({ id: 'p' + uid(), name: 'New item', desc: '', price: 100, stock: 10, emoji: '🍟', image: '', category: 'Snacks' }); draw(); } }, '+ Add item'),
+    h('button', { class: 'btn', onclick: () => saveKey('products') }, '💾 Save changes')),
+    h('div', { style: 'overflow:auto;margin-top:.6rem' }, h('table', {}, h('thead', {}, h('tr', {}, ['Emoji', 'Name / description', 'Category', 'Price (Rs) / old price (shows % OFF)', 'Stock', 'Picture', ''].map(x => h('th', {}, x)))), body))));
+};
+
+/* ----- orders ----- */
+VIEWS.orders = async m => {
+  m.append(h('div', { class: 'card' }, h('h3', {}, `Orders (${D.orders.length})`),
+    D.orders.length ? h('table', {}, h('thead', {}, h('tr', {}, ['Order', 'Customer', 'Items', 'Total', 'Status', ''].map(x => h('th', {}, x)))),
+      h('tbody', {}, D.orders.map(o => {
+        const st = h('select', {}, ['New', 'Confirmed', 'Out for delivery', 'Delivered', 'Cancelled'].map(x => h('option', { selected: x === o.status || undefined }, x)));
+        st.onchange = async () => { await api('/api/admin/item', 'POST', { key: 'orders', op: 'patch', id: o.id, data: { status: st.value } }); toast('✅ Updated'); };
+        return h('tr', {}, h('td', {}, h('b', {}, '#' + o.id), h('br'), new Date(o.date).toLocaleString()),
+          h('td', {}, o.name, h('br'), o.phone, h('br'), o.address, o.note ? h('div', { style: 'color:var(--mu)' }, '📝 ' + o.note) : ''),
+          h('td', {}, o.items.map(i => h('div', {}, `${i.qty} × ${i.name} (Rs ${i.price})`))), h('td', {}, 'Rs ' + o.total), h('td', {}, st),
+          h('td', {}, h('button', { class: 'btn d s', onclick: async () => { if (confirm('Delete order?')) { await api('/api/admin/item', 'POST', { key: 'orders', op: 'delete', id: o.id }); go('orders'); } } }, 'Delete')));
+      }))) : h('p', { style: 'color:var(--mu)' }, 'No orders yet.')));
+};
+
+/* ----- reviews ----- */
+VIEWS.reviews = async m => {
+  const nv = { name: '', rating: 5, text: '' };
+  m.append(h('div', { class: 'card' }, h('h3', {}, 'Add a review manually'), h('div', { class: 'two' }, field('Name', nv, 'name'), field('Rating (1-5)', nv, 'rating', { type: 'number', min: 1, max: 5 })), field('Review', nv, 'text', { area: 2 }),
+    h('button', { class: 'btn', style: 'margin-top:.7rem', onclick: async () => { if (!nv.name || !nv.text) return toast('Name and text needed'); await api('/api/admin/item', 'POST', { key: 'reviews', op: 'add', data: nv }); go('reviews'); } }, 'Add review')));
+  m.append(h('div', { class: 'card' }, h('h3', {}, `Reviews (${D.reviews.length}) – customer submissions need approval`),
+    D.reviews.length ? h('table', {}, h('thead', {}, h('tr', {}, ['Who', 'Review', 'Status', ''].map(x => h('th', {}, x)))),
+      h('tbody', {}, D.reviews.map(r => h('tr', {}, h('td', {}, h('b', {}, r.name), h('br'), '★'.repeat(r.rating)), h('td', {}, r.text),
+        h('td', {}, h('span', { class: 'pill ' + (r.approved ? 'ok' : 'w') }, r.approved ? 'Published' : 'Pending')),
+        h('td', {}, h('button', { class: 'btn g s', onclick: async () => { await api('/api/admin/item', 'POST', { key: 'reviews', op: 'patch', id: r.id, data: { approved: !r.approved } }); go('reviews'); } }, r.approved ? 'Hide' : 'Approve'), ' ',
+          h('button', { class: 'btn d s', onclick: async () => { await api('/api/admin/item', 'POST', { key: 'reviews', op: 'delete', id: r.id }); go('reviews'); } }, 'Delete')))))) : h('p', {}, 'No reviews.')));
+};
+
+/* ----- feedback ----- */
+VIEWS.feedback = async m => {
+  const F = D.feedbackForm, list = h('div'), draw = () => {
+    list.innerHTML = '';
+    F.fields.forEach((f, i) => list.append(h('div', { class: 'sec', style: 'padding:.6rem .8rem' }, h('div', { class: 'row' },
+      field('Question', f, 'label', { cls: 'grow' }),
+      field('Type', f, 'type', { options: ['text', 'email', 'textarea', 'select', 'rating'], cb: draw }),
+      f.type === 'select' ? field('Options (comma separated)', f, 'options', { cls: 'grow' }) : '',
+      h('label', { style: 'display:flex;gap:.3rem;align-items:center;margin-top:1.2rem' }, (() => { const c = h('input', { type: 'checkbox', style: 'width:auto' }); c.checked = f.required; c.onchange = () => f.required = c.checked; return c; })(), 'Required'),
+      h('button', { class: 'btn g s', style: 'margin-top:1.2rem', onclick: () => { if (i) { [F.fields[i - 1], F.fields[i]] = [F.fields[i], F.fields[i - 1]]; draw(); } } }, '↑'),
+      h('button', { class: 'btn g s', style: 'margin-top:1.2rem', onclick: () => { if (i < F.fields.length - 1) { [F.fields[i + 1], F.fields[i]] = [F.fields[i], F.fields[i + 1]]; draw(); } } }, '↓'),
+      h('button', { class: 'btn d s', style: 'margin-top:1.2rem', onclick: () => { F.fields.splice(i, 1); draw(); } }, 'Remove')))));
+    list.querySelectorAll('select').forEach(s => { });
+  };
+  draw();
+  m.append(h('div', { class: 'card' }, h('div', { class: 'row' }, h('b', {}, 'Edit feedback form'), h('span', { class: 'grow' }),
+    h('button', { class: 'btn g', onclick: () => { F.fields.push({ id: 'f' + uid(), label: 'New question', type: 'text', required: false, options: '' }); draw(); } }, '+ Add question'),
+    h('button', { class: 'btn', onclick: () => saveKey('feedbackForm') }, '💾 Save form')), field('Form heading', F, 'title'), h('div', { style: 'margin-top:.8rem' }, list)));
+  m.append(h('div', { class: 'card' }, h('h3', {}, `Responses (${D.feedbacks.length})`),
+    D.feedbacks.length ? D.feedbacks.map(fb => h('div', { class: 'sec', style: 'padding:.8rem' }, h('small', { style: 'color:var(--mu)' }, new Date(fb.date).toLocaleString()), fb.answers.map(a => h('div', {}, h('b', {}, a.label + ': '), a.value || '–')),
+      h('button', { class: 'btn d s', style: 'margin-top:.4rem', onclick: async () => { await api('/api/admin/item', 'POST', { key: 'feedbacks', op: 'delete', id: fb.id }); go('feedback'); } }, 'Delete'))) : h('p', { style: 'color:var(--mu)' }, 'No responses yet.')));
+};
+
+/* ----- theme ----- */
+const FONTS = ['Archivo Black','Barlow','Anton','Poppins', 'Baloo 2', 'Playfair Display', 'Lobster', 'Pacifico', 'Montserrat', 'Roboto Slab', 'Fredoka', 'Nunito', 'Bebas Neue', 'Oswald', 'Merriweather', 'Caveat'];
+VIEWS.theme = async m => {
+  D = await api('/api/admin/data');
+  const t = D.theme, b = D.brand, prev = h('div', { class: 'prev' });
+  const paint = () => {
+    prev.style.cssText = `background:${t.bg};color:${t.text};font-family:'${t.font}',sans-serif;font-size:${t.fontSize}px`;
+    prev.innerHTML = `<h2 style="font-family:'${t.headingFont}',sans-serif;font-size:1.8em">${esc(b.logo)} ${esc(b.name)}</h2><p>${esc(b.tagline)}</p><span style="display:inline-block;margin-top:.5rem;background:${t.primary};color:#fff;padding:.4rem 1rem;border-radius:99px">Button</span> <span style="background:${t.accent};padding:.4rem 1rem;border-radius:99px;color:#000">Accent</span>`;
+    const id = 'pf'; let l = document.getElementById(id); if (!l) { l = h('link', { id, rel: 'stylesheet' }); document.head.append(l); }
+    l.href = 'https://fonts.googleapis.com/css2?' + [...new Set([t.font, t.headingFont])].map(f => 'family=' + f.replace(/ /g, '+')).join('&') + '&display=swap';
+  };
+  const col = (l, k) => field(l, t, k, { type: 'color', cb: paint });
+  m.append(h('div', { class: 'card' }, h('div', { class: 'row' }, h('b', {}, 'Brand & theme'), h('span', { class: 'grow' }),
+    h('button', { class: 'btn', onclick: async () => { await saveKey('theme'); await saveKey('brand'); } }, '💾 Save theme')),
+    h('div', { class: 'two' }, field('Brand name', b, 'name', { cb: paint }), field('Logo emoji', b, 'logo', { cb: paint })), field('Tagline', b, 'tagline', { cb: paint }),
+    field('Top announcement bar (empty = hidden)', b, 'notice'), h('div', { class: 'two' }, field('WhatsApp number (with country code, e.g. 923001234567)', b, 'whatsapp'), field('Phone shown in footer', b, 'phone')),
+    h('div', { class: 'two' }, col('Primary colour', 'primary'), col('Accent colour', 'accent'), col('Background', 'bg'), col('Text colour', 'text'), col('Card colour', 'card')),
+    h('div', { class: 'two' }, field('Body font', t, 'font', { options: FONTS, cb: paint }), field('Heading font', t, 'headingFont', { options: FONTS, cb: paint })),
+    field('Base font size (px): ', t, 'fontSize', { type: 'range', min: 13, max: 22, step: 1, cb: () => { paint(); lbl.textContent = t.fontSize + 'px'; } }),
+    (window.lbl = h('small', {}, t.fontSize + 'px')), h('label', {}, 'Live preview'), prev));
+  paint();
+  const pw = { old: '', neu: '', neu2: '' };
+  m.append(h('div', { class: 'card' }, h('h3', {}, '🔑 Change admin password'),
+    h('div', { class: 'two' }, field('Current password', pw, 'old', { type: 'password' }), h('div')),
+    h('div', { class: 'two' }, field('New password (min 6)', pw, 'neu', { type: 'password' }), field('Repeat new password', pw, 'neu2', { type: 'password' })),
+    h('button', { class: 'btn', style: 'margin-top:.8rem', onclick: async () => {
+      if (pw.neu !== pw.neu2) return toast('❌ New passwords do not match');
+      try { T = (await api('/api/admin/password', 'POST', { old: pw.old, password: pw.neu })).token; sessionStorage.fbTok = T; toast('✅ Password changed'); go('theme'); } catch (e) { toast('❌ ' + e.message); }
+    } }, 'Change password')));
+};
+
+/* ---------- boot ---------- */
+async function start() { $('#login').style.display = 'none'; $('#app').style.display = 'block'; D = await api('/api/admin/data'); go('analytics'); }
+async function login() {
+  try { T = (await api('/api/admin/login', 'POST', { password: $('#pw').value })).token; sessionStorage.fbTok = T; start(); }
+  catch (e) { $('#lerr').textContent = e.message; }
+}
+$('#showpw').onchange = e => $('#pw').classList.toggle('show', e.target.checked);
+$('#lg').onclick = login; $('#pw').onkeydown = e => e.key === 'Enter' && login();
+fetch('/api/admin/status').then(r => r.json()).then(s => { if (s.setup) { $('#ltitle').textContent = '🔑 Create your admin password'; $('#pw').placeholder = 'New password (min 6 characters)'; $('#lg').textContent = 'Create password & sign in'; } }).catch(() => { });
+if (T) api('/api/admin/data').then(start).catch(() => { });
+</script>
+</body>
+</html>
